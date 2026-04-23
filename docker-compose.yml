@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vidici-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - vidici-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: vidici-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vidici_db
+      POSTGRES_USER: vidici_user
+      POSTGRES_PASSWORD: v1dichip@s5vvord
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - vidici-network
+
+volumes:
+  pgdata:
+
+networks:
+  vidici-network:
+    driver: bridge
