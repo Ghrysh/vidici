@@ -11,27 +11,19 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
         $user = Auth::user();
 
-        // Logika Pengecekan Email Verified
-        // Kecuali untuk email admin@vidici.com
+        // Pengecekan Email Verified (Kecuali untuk admin)
         if ($user->email !== 'admin@vidici.com' && is_null($user->email_verified_at)) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
@@ -41,30 +33,27 @@ class AuthenticatedSessionController extends Controller
         }
 
         $roles = $user->roles->pluck('slug');
-
-        // Tambahkan pesan sukses untuk SweetAlert
         session()->flash('success', 'Selamat Datang, ' . $user->name);
 
+        // KUNCI PERBAIKAN: Gunakan redirect() paksa, BUKAN redirect()->intended()
+        // 1. Jika dia Admin -> Langsung ke halaman Admin
         if ($roles->contains('admin')) {
-            return redirect()->intended('/admin/visitors');
+            return redirect('/admin/visitors');
         } 
 
-        // if ($roles->contains('student')) {
-        //     return redirect()->intended('/');
-        // }
+        // 2. Jika dia User Biasa -> Langsung ke Landing Page
+        if ($roles->contains('user')) {
+            return redirect('/');
+        }
 
-        return redirect()->intended(route('login'));
+        // 3. FALLBACK: Jika akun tidak punya role sama sekali -> Paksa ke Landing Page (Bukan ke Login/Dashboard)
+        return redirect('/');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/login');

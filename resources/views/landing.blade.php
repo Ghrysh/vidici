@@ -392,6 +392,8 @@
             </div>
         </section>
 
+        @include('components.chatbot')
+
         @include('partials.footer')
 
     </div>

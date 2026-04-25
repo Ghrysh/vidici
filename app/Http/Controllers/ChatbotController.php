@@ -8,7 +8,8 @@ use App\Models\ChatbotLead;
 
 class ChatbotController extends Controller
 {
-    public function processChat(Request $request)
+    // Ganti nama fungsi menjadi 'send' agar sesuai dengan Route /api/chatbot/send
+    public function send(Request $request)
     {
         $topic = $request->topic ?? 'Umum'; 
         $message = strtolower(trim($request->message));
@@ -30,75 +31,66 @@ class ChatbotController extends Controller
         $cleanMessage = implode(' ', $words);
 
         $realIp = $request->ip();
-        if ($request->hasHeader('X-Forwarded-For')) {
-            $ips = explode(',', $request->header('X-Forwarded-For'));
-            $realIp = trim($ips[0]);
-        }
-
+        
         $lead = null;
         if ($request->lead_id) {
             $lead = ChatbotLead::find($request->lead_id);
         }
 
+        // LOGIKA AUTO CLOSE (Nama kolom disesuaikan dengan Migration: contact, history)
         if ($request->is_autoclose) {
             if ($lead) {
                 $contactInfo = auth()->check() ? auth()->user()->email : 'Diakhiri Otomatis (Guest)';
                 $lead->update([
-                    'contact_info' => $contactInfo,
-                    'chat_history' => json_encode($request->chat_history)
+                    'contact' => $contactInfo,
+                    'history' => json_encode($request->chat_history)
                 ]);
             }
             return response()->json(['success' => true]);
         }
 
+        // PEMBUATAN / UPDATE LEAD (Nama kolom disesuaikan: topic, contact, history, message)
         if (!$lead) {
             $lead = ChatbotLead::create([
                 'user_id' => auth()->id(),
                 'ip_address' => $realIp, 
-                'topic_context' => $topic,
-                'contact_info' => '-', 
-                'chat_history' => json_encode($request->chat_history),
-                'last_message' => $message
+                'topic' => $topic, // Sesuai DB
+                'contact' => '-', // Sesuai DB
+                'history' => json_encode($request->chat_history), // Sesuai DB
+                'message' => $message, // Sesuai DB
+                'status' => 'open'
             ]);
         } else {
-            // Update row yang sudah ada
             $lead->update([
-                'chat_history' => json_encode($request->chat_history),
-                'last_message' => $message
+                'history' => json_encode($request->chat_history),
+                'message' => $message
             ]);
         }
 
+        // LOGIKA FOLLOW UP (Simpan kontak ke kolom 'contact')
         if ($request->is_followup) {
-            $lead->update(['contact_info' => $message]);
+            $lead->update(['contact' => $message]);
             return response()->json([
-                'reply' => 'Terima kasih! Tim FutureCloud Space akan segera menindaklanjuti kendala Anda melalui kontak tersebut. Sesi chat ini Mimin tutup ya! 👋',
+                'reply' => 'Terima kasih! Tim konsultan VIDICI akan segera menindaklanjuti kendala Anda melalui kontak tersebut. Sesi chat ini Mimin tutup ya! 👋',
                 'is_finished' => true,
                 'lead_id' => $lead->id
             ]);
         }
 
+        // PENCARIAN JAWABAN
         $knowledges = ChatbotKnowledge::whereIn('topic', [$topic, 'Umum'])->get();
         $bestMatch = null;
         $highestScore = 0;
 
         foreach ($knowledges as $k) {
             $keywords = json_decode($k->keywords, true);
-            $score = 0;
+            if (!is_array($keywords)) continue;
 
+            $score = 0;
             foreach ($keywords as $kw) {
                 $kw = strtolower(trim($kw));
-                
                 if (str_contains($cleanMessage, $kw)) {
                     $score += strlen($kw) * 2; 
-                } else {
-                    $kwWords = explode(' ', $kw);
-                    foreach($kwWords as $kww) {
-                        foreach($words as $userWord) {
-                            if (strlen($userWord) > 3 && levenshtein($userWord, $kww) <= 1) {
-                                $score += 2;
-                            }
-                        }
-                    }
                 }
             }
 
@@ -110,7 +102,7 @@ class ChatbotController extends Controller
 
         $reply = $highestScore > 0 
             ? $bestMatch->response 
-            : "Maaf, kata tersebut sedikit kurang jelas untuk topik <b>".$topic."</b> ini. Bisa dijelaskan dengan kata kunci yang lebih sederhana?";
+            : "Maaf, Mimin belum menemukan jawaban yang tepat untuk pertanyaan Anda mengenai <b>".$topic."</b>. Bisa coba jelaskan dengan kata kunci lain?";
 
         return response()->json([
             'reply' => $reply,

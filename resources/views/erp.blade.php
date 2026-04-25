@@ -171,6 +171,8 @@
             <a data-aos="zoom-in" data-aos-delay="200" href="mailto:info@vidici.id" class="inline-block px-8 md:px-12 py-3 md:py-4 bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white font-black rounded-full hover:opacity-90 transition shadow-2xl shadow-cyan-500/20 uppercase tracking-widest text-[10px] md:text-xs">Jadwalkan Konsultasi</a>
         </section>
 
+        @include('components.chatbot')
+
         @include('partials.footer')
     </div>
 

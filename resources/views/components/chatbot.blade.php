@@ -1,14 +1,14 @@
-<div x-data="chatbot()" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999]">
+<div x-data="chatbot()" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999] font-sans">
 
     <button @click="toggleChat()" :class="isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'"
-        class="w-14 h-14 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 hover:shadow-indigo-300 transition-all duration-300 absolute bottom-0 right-0">
+        class="w-14 h-14 bg-gradient-to-r from-cyan-500 to-fuchsia-600 rounded-full shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center text-white hover:scale-110 hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] transition-all duration-300 absolute bottom-0 right-0 border border-white/20">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
             stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
         </svg>
         <span x-show="unread > 0"
-            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm"
+            class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-zinc-950"
             x-text="unread" style="display: none;"></span>
     </button>
 
@@ -18,62 +18,68 @@
         x-transition:leave="transition ease-in duration-200 origin-bottom-right"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 scale-50 translate-y-10" style="display: none;"
-        class="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[380px] h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] border border-slate-100 flex flex-col overflow-hidden">
+        class="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[380px] h-[550px] max-h-[85vh] bg-zinc-950/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/10 flex flex-col overflow-hidden">
 
         <div
-            class="bg-gradient-to-r from-teal-500 to-indigo-600 p-3 sm:p-4 flex items-center justify-between shadow-md z-10 shrink-0">
-            <div class="flex items-center gap-2 sm:gap-3">
+            class="bg-zinc-900/50 border-b border-white/10 p-3 sm:p-4 flex items-center justify-between shadow-md z-10 shrink-0 backdrop-blur-md relative overflow-hidden">
+            
+            <div class="absolute -top-6 -left-6 w-20 h-20 bg-cyan-500/20 blur-xl rounded-full pointer-events-none"></div>
+            <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-fuchsia-500/20 blur-xl rounded-full pointer-events-none"></div>
+
+            <div class="flex items-center gap-2 sm:gap-3 relative z-10">
                 <div
-                    class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-base sm:text-xl shadow-inner border border-white/30">
-                    🤖</div>
+                    class="w-8 h-8 sm:w-10 sm:h-10 bg-zinc-800 rounded-full flex items-center justify-center text-base sm:text-xl shadow-inner border border-white/20">
+                    <span class="animate-pulse">🤖</span>
+                </div>
                 <div>
-                    <h3 class="text-white font-bold text-sm sm:text-base leading-tight">
-                        Vidici Bot
+                    <h3 class="text-white font-bold text-sm sm:text-base leading-tight tracking-wide">
+                        VIDICI Assistant
                     </h3>
-                    <p class="text-teal-100 text-[9px] sm:text-[10px] flex items-center gap-1 mt-0.5"><span
-                            class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Siap Membantu</p>
+                    <p class="text-cyan-400 text-[9px] sm:text-[10px] flex items-center gap-1 mt-0.5 tracking-widest uppercase font-medium">
+                        <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_5px_#22d3ee]"></span> Online
+                    </p>
                 </div>
             </div>
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 relative z-10">
                 <button @click="resetChat()" title="Mulai Chat Baru"
-                    class="text-white hover:bg-white/20 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 bg-white/10 shadow-sm">
+                    class="text-zinc-300 hover:text-white hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-transparent hover:border-white/10">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
-                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">New Chat</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider hidden sm:block">New Chat</span>
                 </button>
                 <button @click="toggleChat()" title="Tutup Chat"
-                    class="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors">
+                    class="text-zinc-400 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="3">
+                        stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
             </div>
         </div>
 
-        <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 scroll-smooth relative">
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-950/50 scroll-smooth relative custom-scrollbar">
 
             <template x-for="(msg, index) in messages" :key="index">
                 <div class="flex flex-col" :class="msg.sender === 'user' ? 'items-end' : 'items-start'">
-                    <span class="text-[9px] text-slate-400 mb-1 px-1 font-medium"
+                    <span class="text-[9px] text-zinc-500 mb-1 px-1 font-bold tracking-widest uppercase"
                         x-text="msg.sender === 'user' ? 'Anda' : 'Vidici Bot'"></span>
-                    <div class="max-w-[85%] px-4 py-2.5 rounded-2xl text-xs sm:text-sm shadow-sm"
-                        :class="msg.sender === 'user' ? 'bg-indigo-500 text-white rounded-tr-sm' :
-                            'bg-white text-slate-700 border border-slate-200 rounded-tl-sm leading-relaxed'"
+                    <div class="max-w-[85%] px-4 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md font-light leading-relaxed tracking-wide border"
+                        :class="msg.sender === 'user' ? 'bg-gradient-to-br from-cyan-600 to-cyan-500 text-white rounded-tr-sm border-cyan-400/30' :
+                            'bg-zinc-900 text-zinc-300 border-white/10 rounded-tl-sm'"
                         x-html="msg.text"></div>
                 </div>
             </template>
 
             <div x-show="!selectedTopic" class="flex flex-col gap-2 mt-2" style="display: none;">
-                <p class="text-xs font-bold text-slate-500 text-center mb-1">Silakan pilih topik pertanyaan Anda:</p>
+                <p class="text-xs font-bold text-zinc-500 text-center mb-2 uppercase tracking-widest">Pilih Topik Diskusi:</p>
                 <template x-for="topic in topics" :key="topic">
                     <button @click="setTopic(topic)"
-                        class="w-full text-left px-4 py-3 bg-white border border-teal-200 hover:border-teal-500 hover:bg-teal-50 rounded-xl text-xs sm:text-sm font-bold text-teal-700 transition-all shadow-sm flex items-center justify-between group">
+                        class="w-full text-left px-4 py-3 bg-zinc-900 border border-white/10 hover:border-cyan-500/50 hover:bg-zinc-800 rounded-xl text-xs sm:text-sm font-bold text-zinc-300 hover:text-cyan-400 transition-all shadow-sm flex items-center justify-between group">
                         <span x-text="topic"></span>
                         <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 text-teal-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-transform"
+                            class="h-4 w-4 text-zinc-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-transform"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
@@ -84,7 +90,7 @@
             <div x-show="selectedTopic && !isTyping && !isFinished" class="flex flex-wrap gap-2 mt-4 pb-2"
                 style="display: none;">
                 <button @click="reselectTopic()"
-                    class="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-600 text-[10px] sm:text-xs font-bold rounded-full transition-colors shadow-sm flex items-center gap-1">
+                    class="px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-cyan-500 hover:bg-zinc-800 text-zinc-300 hover:text-cyan-400 text-[10px] sm:text-xs font-bold rounded-full transition-colors shadow-sm flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -93,8 +99,8 @@
                     Pilih Topik Lain
                 </button>
                 <button x-show="!followUpMode" @click="triggerFollowUp()"
-                    class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-[10px] sm:text-xs font-bold rounded-full transition-colors shadow-sm flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                    class="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-[10px] sm:text-xs font-bold rounded-full transition-colors shadow-sm flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-cyan-400" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -105,25 +111,25 @@
 
             <div x-show="isTyping" class="flex items-start" style="display: none;">
                 <div
-                    class="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
-                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s">
+                    class="bg-zinc-900 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce"></div>
+                    <div class="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce" style="animation-delay: 0.1s">
                     </div>
-                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s">
+                    <div class="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce" style="animation-delay: 0.2s">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="p-2 sm:p-3 bg-white border-t border-slate-100 z-10" x-show="selectedTopic">
+        <div class="p-3 sm:p-4 bg-zinc-900/80 border-t border-white/10 z-10 backdrop-blur-xl" x-show="selectedTopic">
             <form @submit.prevent="sendMessage()" class="relative flex items-center">
                 <input x-model="inputText" type="text"
                     :placeholder="followUpMode ? 'Ketik Email / No WA Anda...' : 'Ketik pesan Anda...'"
                     :disabled="isFinished || isTyping"
-                    class="w-full bg-slate-100 text-slate-800 text-xs sm:text-sm px-3 py-2.5 sm:px-4 sm:py-3 pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all disabled:opacity-50">
+                    class="w-full bg-zinc-950 border border-white/10 text-white text-xs sm:text-sm px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-cyan-500 transition-all disabled:opacity-50 placeholder-zinc-500">
 
                 <button type="submit" :disabled="!inputText.trim() || isFinished || isTyping"
-                    class="absolute right-1 sm:right-2 p-1.5 sm:p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:bg-slate-300 transition-colors shadow-sm">
+                    class="absolute right-1.5 p-2 bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:from-zinc-600 disabled:to-zinc-600 transition-all shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-0.5" viewBox="0 0 20 20"
                         fill="currentColor">
                         <path
@@ -131,12 +137,19 @@
                     </svg>
                 </button>
             </form>
-            <div class="text-center mt-1.5" x-show="!isFinished">
-                <span class="text-[8px] sm:text-[9px] text-slate-400">Powered by Vidici AI</span>
+            <div class="text-center mt-2" x-show="!isFinished">
+                <span class="text-[8px] sm:text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Vidici Artificial Intelligence</span>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+</style>
 
 <script>
     function chatbot() {
@@ -156,14 +169,21 @@
             activityTimer: null,
 
             topics: [
-                'Akun & Login',
-                'Kursus & Materi',
-                'Kendala Teknis',
+                'Profil Perusahaan',
+                'CORENETA ERP',
+                'Layanan Utama',
+                'Karier & Kontak',
             ],
 
             messages: [],
 
             init() {
+                // RESET CACHE BROWSER LAMA AGAR TOPIK BARU MUNCUL
+                let savedVersion = localStorage.getItem('Vidici_bot_version');
+                if(savedVersion !== 'v2') {
+                    localStorage.removeItem('Vidici_chatbot_state');
+                    localStorage.setItem('Vidici_bot_version', 'v2');
+                }
                 this.loadState();
             },
 
@@ -372,28 +392,26 @@
                 if (!this.inputText.trim()) return;
 
                 const msgText = this.inputText;
-                this.messages.push({
-                    sender: 'user',
-                    text: msgText
-                });
+                this.messages.push({ sender: 'user', text: msgText });
                 this.inputText = '';
-
                 this.updateActivity();
                 this.saveState();
 
-                if (!this.followUpMode) {
-                    this.lastUserMessage = msgText;
-                }
+                if (!this.followUpMode) { this.lastUserMessage = msgText; }
 
                 this.scrollToBottom();
                 this.isTyping = true;
 
                 try {
-                    let res = await fetch('/api/chatbot/send', {
+                    // AMBIL TOKEN CSRF: Pastikan tag meta ada di head HTML Anda
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    
+                    const response = await fetch('/api/chatbot/send', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token
                         },
                         body: JSON.stringify({
                             message: msgText,
@@ -404,16 +422,20 @@
                             lead_id: this.leadId
                         })
                     });
-                    let data = await res.json();
 
+                    // Jika error 419 (Token Expired) atau 500 (Server Error)
+                    if (!response.ok) {
+                        const errorMsg = await response.text();
+                        console.error("Server Error Details:", errorMsg);
+                        throw new Error('Gagal menghubungi server');
+                    }
+
+                    const data = await response.json();
                     if (data.lead_id) this.leadId = data.lead_id;
 
                     setTimeout(() => {
                         this.isTyping = false;
-                        this.messages.push({
-                            sender: 'bot',
-                            text: data.reply
-                        });
+                        this.messages.push({ sender: 'bot', text: data.reply });
                         this.playNotification();
 
                         if (data.is_finished) {
@@ -422,13 +444,13 @@
                         }
 
                         if (!this.isOpen) this.unread++;
-
                         this.saveState();
                         this.scrollToBottom();
                     }, 800);
 
                 } catch (e) {
                     this.isTyping = false;
+                    console.error("Chatbot Error:", e);
                     this.messages.push({
                         sender: 'bot',
                         text: 'Maaf, Mimin sedang gangguan jaringan. Coba lagi ya.'
