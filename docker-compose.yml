@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.9"
 
 services:
   app:
@@ -6,19 +6,28 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: vidici-app
-    ports:
-      - "8102:8000"
+    working_dir: /var/www/html
     volumes:
-      - .:/app
-    depends_on:
-      - db
+      - ./:/var/www/html
     networks:
-      - vidici-network
+      - vidici_net
+
+  web:
+    image: nginx:alpine
+    container_name: vidici_web
+    ports:
+      - "8102:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - vidici_net
 
   db:
-    image: postgres:15-alpine
-    container_name: vidici-db
-    restart: unless-stopped
+    image: postgres:15
+    container_name: vidici_db
     environment:
       POSTGRES_DB: vidici_db
       POSTGRES_USER: vidici_user
@@ -26,13 +35,12 @@ services:
     ports:
       - "5453:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     networks:
-      - vidici-network
-
-volumes:
-  pgdata:
+      - vidici_net
 
 networks:
-  vidici-network:
-    driver: bridge
+  vidici_net:
+
+volumes:
+  db_data:
