@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('chatbot_leads', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->uuid('user_id')->nullable();
             $table->string('ip_address')->nullable();
             $table->string('topic_context')->nullable();
             $table->string('contact_info');

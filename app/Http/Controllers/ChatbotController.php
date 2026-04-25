@@ -8,8 +8,8 @@ use App\Models\ChatbotLead;
 
 class ChatbotController extends Controller
 {
-    // Ganti nama fungsi menjadi 'send' agar sesuai dengan Route /api/chatbot/send
-    public function send(Request $request)
+    // Nama fungsi dikembalikan menjadi processChat agar sesuai dengan routes/web.php
+    public function processChat(Request $request)
     {
         $topic = $request->topic ?? 'Umum'; 
         $message = strtolower(trim($request->message));
@@ -31,45 +31,49 @@ class ChatbotController extends Controller
         $cleanMessage = implode(' ', $words);
 
         $realIp = $request->ip();
+        if ($request->hasHeader('X-Forwarded-For')) {
+            $ips = explode(',', $request->header('X-Forwarded-For'));
+            $realIp = trim($ips[0]);
+        }
         
         $lead = null;
         if ($request->lead_id) {
             $lead = ChatbotLead::find($request->lead_id);
         }
 
-        // LOGIKA AUTO CLOSE (Nama kolom disesuaikan dengan Migration: contact, history)
+        // LOGIKA AUTO CLOSE
         if ($request->is_autoclose) {
             if ($lead) {
                 $contactInfo = auth()->check() ? auth()->user()->email : 'Diakhiri Otomatis (Guest)';
                 $lead->update([
-                    'contact' => $contactInfo,
-                    'history' => json_encode($request->chat_history)
+                    'contact_info' => $contactInfo,
+                    'chat_history' => json_encode($request->chat_history)
                 ]);
             }
             return response()->json(['success' => true]);
         }
 
-        // PEMBUATAN / UPDATE LEAD (Nama kolom disesuaikan: topic, contact, history, message)
+        // PEMBUATAN / UPDATE LEAD (Nama kolom disesuaikan dengan database & model Anda)
         if (!$lead) {
             $lead = ChatbotLead::create([
                 'user_id' => auth()->id(),
                 'ip_address' => $realIp, 
-                'topic' => $topic, // Sesuai DB
-                'contact' => '-', // Sesuai DB
-                'history' => json_encode($request->chat_history), // Sesuai DB
-                'message' => $message, // Sesuai DB
-                'status' => 'open'
+                'topic_context' => $topic, 
+                'contact_info' => '-', 
+                'chat_history' => json_encode($request->chat_history), 
+                'last_message' => $message, 
+                'status' => 'pending' // Wajib 'pending', PostgreSQL akan menolak kata 'open'
             ]);
         } else {
             $lead->update([
-                'history' => json_encode($request->chat_history),
-                'message' => $message
+                'chat_history' => json_encode($request->chat_history),
+                'last_message' => $message
             ]);
         }
 
-        // LOGIKA FOLLOW UP (Simpan kontak ke kolom 'contact')
+        // LOGIKA FOLLOW UP (Simpan kontak ke kolom 'contact_info')
         if ($request->is_followup) {
-            $lead->update(['contact' => $message]);
+            $lead->update(['contact_info' => $message]);
             return response()->json([
                 'reply' => 'Terima kasih! Tim konsultan VIDICI akan segera menindaklanjuti kendala Anda melalui kontak tersebut. Sesi chat ini Mimin tutup ya! 👋',
                 'is_finished' => true,
@@ -91,6 +95,15 @@ class ChatbotController extends Controller
                 $kw = strtolower(trim($kw));
                 if (str_contains($cleanMessage, $kw)) {
                     $score += strlen($kw) * 2; 
+                } else {
+                    $kwWords = explode(' ', $kw);
+                    foreach($kwWords as $kww) {
+                        foreach($words as $userWord) {
+                            if (strlen($userWord) > 3 && levenshtein($userWord, $kww) <= 1) {
+                                $score += 2;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -102,7 +115,7 @@ class ChatbotController extends Controller
 
         $reply = $highestScore > 0 
             ? $bestMatch->response 
-            : "Maaf, Mimin belum menemukan jawaban yang tepat untuk pertanyaan Anda mengenai <b>".$topic."</b>. Bisa coba jelaskan dengan kata kunci lain?";
+            : "Maaf, Mimin belum menemukan jawaban yang tepat untuk pertanyaan Anda mengenai <b>".$topic."</b>. Bisa coba jelaskan dengan kata kunci lain atau pilih 'Hubungi Konsultan'?";
 
         return response()->json([
             'reply' => $reply,
