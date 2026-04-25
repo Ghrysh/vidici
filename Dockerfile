@@ -29,4 +29,4 @@ RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framew
     && chmod -R 777 storage bootstrap/cache
 
 # Jalankan server bawaan Laravel pada port yang ditentukan oleh Railway
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
