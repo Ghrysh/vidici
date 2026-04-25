@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: vidici-app
     ports:
-      - "8000:8000"
+      - "8102:8000"
     volumes:
       - .:/app
     depends_on:
@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: vidici_user
       POSTGRES_PASSWORD: v1dichip@s5vvord
     ports:
-      - "5432:5432"
+      - "5453:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
